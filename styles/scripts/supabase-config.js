@@ -1,8 +1,8 @@
 // CONFIGURAÇÃO DO SUPABASE - GEORGIA DELIVERYS
 // COLE SUAS CHAVES AQUI:
 
-const SUPABASE_URL = https://qbdkkzukbbgqikozihjm.supabase.co; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZGtrenVrYmJncWlrb3ppaGptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMDM5NTAsImV4cCI6MjA4MTY3OTk1MH0.c1Ycx_938CWAli4wAtLikewAwLpf3wUR5kaw0EEoknI
+const SUPABASE_URL = 'https://qbdkkzukbbgqikozihjm.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZGtrenVrYmJncWlrb3ppaGptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMDM5NTAsImV4cCI6MjA4MTY3OTk1MH0.c1Ycx_938CWAli4wAtLikewAwLpf3wUR5kaw0EEoknI'
 
 
 // Inicializar Supabase automaticamente
