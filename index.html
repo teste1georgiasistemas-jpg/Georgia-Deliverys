@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Georgia Deliverys</title>
+    <link rel="stylesheet" href="styles/cliente.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts/supabase-config.js" defer></script>
+    <script src="scripts/cliente.js" defer></script>
+</head>
+<body>
+    <!-- Cabeçalho Roxo -->
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo-circle">GD</div>
+            <div>
+                <h1>Georgia Deliverys</h1>
+                <p class="slogan">Sabor que entrega!</p>
+            </div>
+        </div>
+        <div class="store-info">
+            <div class="status open">
+                <i class="fas fa-store"></i>
+                <span>Aberto</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <span>30-40 min</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-motorcycle"></i>
+                <span>Entrega: R$ 5,00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Capa da Loja -->
+    <div class="store-banner">
+        <div class="banner-overlay">
+            <h2>🍔 Hambúrgueres Artesanais</h2>
+            <p>Delivery até sua casa!</p>
+        </div>
+    </div>
+
+    <!-- Categorias -->
+    <nav class="categories">
+        <button class="category active">🔥 Mais Pedidos</button>
+        <button class="category">🎉 Promoções</button>
+        <button class="category">🍱 Combos</button>
+        <button class="category">🍽️ Principais</button>
+        <button class="category">🥗 Acompanhamentos</button>
+        <button class="category">🥤 Bebidas</button>
+        <button class="category">🍰 Sobremesas</button>
+    </nav>
+
+    <!-- Produtos -->
+    <main class="products-grid" id="products-container">
+        <!-- Produtos carregam aqui automaticamente -->
+    </main>
+
+    <!-- Sacola Fixa -->
+    <div class="cart-fixed" id="cart-fixed">
+        <div class="cart-info">
+            <i class="fas fa-shopping-bag"></i>
+            <div>
+                <span id="cart-count">0 item</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+        </div>
+        <button class="btn-view-cart" onclick="openCart()">
+            Ver Sacola
+        </button>
+    </div>
+
+    <!-- Modal Sacola -->
+    <div class="modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🛒 Sua Sacola</h2>
+                <button class="close-modal" onclick="closeCart()">&times;</button>
+            </div>
+            <div class="modal-body" id="cart-items">
+                <!-- Itens aparecem aqui -->
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>Sua sacola está vazia</p>
+                    <p>Adicione itens deliciosos!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="modal-total">R$ 0,00</span>
+                </div>
+                <button class="btn-checkout" onclick="goToCheckout()">
+                    Finalizar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Simples -->
+    <div class="login-section">
+        <h3>Faça seu pedido!</h3>
+        <button class="btn-login" onclick="login()">
+            <i class="fas fa-user"></i> Entrar com Google
+        </button>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <p>© 2024 Georgia Deliverys - Todos os direitos reservados</p>
+        <p>WhatsApp: (11) 99999-9999</p>
+    </footer>
+
+    <script>
+        // Funções básicas para começar
+        function openCart() {
+            document.getElementById('cart-modal').style.display = 'flex';
+        }
+        
+        function closeCart() {
+            document.getElementById('cart-modal').style.display = 'none';
+        }
+        
+        function login() {
+            alert('Em breve: Login com Google!');
+        }
+        
+        function goToCheckout() {
+            alert('Funcionalidade completa em breve!');
+        }
+    </script>
+</body>
+</html>
