@@ -1,0 +1,392 @@
+/* Georgia Deliverys - Estilos Roxo/Magenta */
+:root {
+  --roxo: #8B5CF6;
+  --roxo-escuro: #7C3AED;
+  --roxo-claro: #A78BFA;
+  --magenta: #EC4899;
+  --fundo: #FFFFFF;
+  --cinza: #F3F4F6;
+  --texto: #1F2937;
+  --verde: #10B981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--cinza);
+  color: var(--texto);
+  padding-bottom: 80px;
+}
+
+/* Cabeçalho Roxo Degradê */
+.header {
+  background: linear-gradient(135deg, var(--roxo), var(--magenta));
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-circle {
+  width: 60px;
+  height: 60px;
+  background: white;
+  color: var(--roxo);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.slogan {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.store-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status {
+  background: var(--verde);
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+/* Capa da Loja */
+.store-banner {
+  height: 200px;
+  background: linear-gradient(rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8)),
+              url('https://images.unsplash.com/photo-1571091655789-405eb7a3a3a8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.banner-overlay h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+/* Categorias */
+.categories {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  overflow-x: auto;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.category {
+  padding: 10px 20px;
+  border: 2px solid var(--roxo);
+  border-radius: 25px;
+  background: white;
+  color: var(--roxo);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.category.active {
+  background: linear-gradient(135deg, var(--roxo), var(--magenta));
+  color: white;
+  border: none;
+}
+
+.category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* Produtos */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+}
+
+.product-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 15px;
+}
+
+.product-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.product-desc {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.product-price {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--roxo);
+  margin: 10px 0;
+}
+
+.btn-add-to-cart {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--roxo), var(--magenta));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-add-to-cart:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+/* Sacola Fixa */
+.cart-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, var(--roxo), var(--magenta));
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+}
+
+.cart-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.cart-info i {
+  font-size: 24px;
+}
+
+.btn-view-cart {
+  background: white;
+  color: var(--roxo);
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-view-cart:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #666;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.empty-cart i {
+  font-size: 60px;
+  margin-bottom: 15px;
+  color: #ddd;
+}
+
+/* Botões */
+.btn-checkout {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--roxo), var(--magenta));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn-login {
+  width: 100%;
+  max-width: 300px;
+  padding: 15px;
+  background: white;
+  border: 2px solid var(--roxo);
+  color: var(--roxo);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+}
+
+/* Login e Rodapé */
+.login-section {
+  text-align: center;
+  padding: 30px 20px;
+  background: white;
+  margin: 20px;
+  border-radius: 15px;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 14px;
+  border-top: 1px solid #eee;
+  margin-top: 30px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+  
+  .store-banner {
+    height: 150px;
+  }
+  
+  .banner-overlay h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+}
