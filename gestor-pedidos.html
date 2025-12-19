@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Pedidos - Georgia Deliverys</title>
+    <link rel="stylesheet" href="styles/gestor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos básicos do gestor */
+        :root {
+            --roxo: #7C3AED;
+            --verde: #10B981;
+            --laranja: #F59E0B;
+            --vermelho: #EF4444;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background: #F9FAFB;
+        }
+        
+        .gestor-header {
+            background: linear-gradient(135deg, var(--roxo), #8B5CF6);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .gestor-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .gestor-title h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .dashboard {
+            padding: 20px;
+            display: grid;
+            gap: 20px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .pedidos-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .pedido-card {
+            border-left: 5px solid var(--roxo);
+            padding: 15px;
+            background: #F8FAFC;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pedido-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
+        }
+        
+        .pedido-novo {
+            border-left-color: var(--verde);
+            animation: piscar 2s infinite;
+        }
+        
+        @keyframes piscar {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .btn-aceitar {
+            background: var(--verde);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .btn-recusar {
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-pendente { background: #FEF3C7; color: #92400E; }
+        .status-producao { background: #DBEAFE; color: #1E40AF; }
+        .status-pronto { background: #D1FAE5; color: #065F46; }
+        .status-entrega { background: #E0E7FF; color: #3730A3; }
+        
+        .login-gestor {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .login-gestor input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .btn-login-gestor {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--roxo), #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login (inicial) -->
+    <div id="login-screen" class="login-gestor">
+        <div style="font-size: 48px; color: #8B5CF6; margin-bottom: 20px;">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h2>Gestor de Pedidos</h2>
+        <p style="color: #666; margin-bottom: 30px;">
+            Acesse para gerenciar os pedidos da Georgia Deliverys
+        </p>
+        
+        <input type="text" id="usuario" placeholder="Usuário" value="gestor">
+        <input type="password" id="senha" placeholder="Senha" value="georgia123">
+        
+        <button class="btn-login-gestor" onclick="fazerLogin()">
+            <i class="fas fa-sign-in-alt"></i> Entrar
+        </button>
+        
+        <p style="margin-top: 20px; font-size: 14px; color: #888;">
+            Dados para teste: usuário: gestor | senha: georgia123
+        </p>
+    </div>
+    
+    <!-- Dashboard do Gestor (aparece depois do login) -->
+    <div id="dashboard-screen" style="display: none;">
+        <header class="gestor-header">
+            <div class="gestor-title">
+                <div style="background: white; width: 50px; height: 50px; border-radius: 50%; 
+                           display: flex; align-items: center; justify-content: center; color: #8B5CF6;">
+                    <i class="fas fa-store" style="font-size: 24px;"></i>
+                </div>
+                <div>
+                    <h1>Georgia Deliverys - Gestor</h1>
+                    <p style="opacity: 0.9; margin: 0; font-size: 14px;">
+                        <i class="fas fa-user"></i> Gestor | 
+                        <span id="hora-atual">Carregando...</span>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <button onclick="sair()" style="background: white; color: #8B5CF6; border: none; 
+                       padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <!-- Pedidos Novos -->
+            <div class="section">
+                <h2><i class="fas fa-bell" style="color: #F59E0B;"></i> Novos Pedidos</h2>
+                <div class="pedidos-grid" id="novos-pedidos">
+                    <div class="pedido-card pedido-novo">
+                        <div style="display: flex; justify-content: space-between;">
+                            <h3 style="margin: 0;">Pedido #2345</h3>
+                            <span class="status-badge status-pendente">PENDENTE</span>
+                        </div>
+                        <p style="margin: 10px 0;">
+                            <i class="fas fa-user"></i> João Silva<br>
+                            <i class="fas fa-phone"></i> (11) 98765-4321<br>
+                            <i class="fas fa-money-bill"></i> R$ 67,80 (Pix)
+                        </p>
+                        <div>
+                            <button class="btn-aceitar" onclick="aceitarPedido(2345)">
+                                <i class="fas fa-check"></i> Aceitar
+                            </button>
+                            <button class="btn-recusar" onclick="recusarPedido(2345)">
+                                <i class="fas fa-times"></i> Recusar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pedidos em Andamento -->
+            <div class="section">
+                <h2><i class="fas fa-cogs" style="color: #3B82F6;"></i> Em Andamento</h2>
+                <div class="pedidos-grid" id="andamento-pedidos">
+                    <div class="pedido-card">
+                        <div style="display: flex; justify-content: space-between;">
+                            <h3 style="margin: 0;">Pedido #2344</h3>
+                            <span class="status-badge status-producao">EM PRODUÇÃO</span>
+                        </div>
+                        <p style="margin: 10px 0;">
+                            <i class="fas fa-user"></i> Maria Santos<br>
+                            <i class="fas fa-clock"></i> Há 15 minutos<br>
+                            <i class="fas fa-list"></i> 3 itens
+                        </p>
+                        <div>
+                            <button onclick="mudarStatus(2344, 'pronto')" 
+                                    style="background: #3B82F6; color: white; border: none; 
+                                           padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                                <i class="fas fa-check-circle"></i> Marcar como Pronto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat -->
+            <div class="section">
+                <h2><i class="fas fa-comments" style="color: #8B5CF6;"></i> Chat com Clientes</h2>
+                <div style="background: #F8FAFC; border-radius: 10px; padding: 15px; margin-top: 15px;">
+                    <div id="chat-messages" style="height: 200px; overflow-y: auto;">
+                        <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+                            <strong>João Silva (Pedido #2345):</strong><br>
+                            Pode adicionar mais bacon, por favor?
+                        </div>
+                        <div style="background: #E0E7FF; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: right;">
+                            <strong>Você:</strong><br>
+                            Claro! Vamos adicionar bacon extra.
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="mensagem-chat" placeholder="Digite sua mensagem..." 
+                               style="flex: 1; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px;">
+                        <button onclick="enviarMensagem()" 
+                                style="background: #8B5CF6; color: white; border: none; 
+                                       padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estatísticas -->
+            <div class="section">
+                <h2><i class="fas fa-chart-bar" style="color: #10B981;"></i> Hoje</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div style="background: #F0F9FF; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #0EA5E9;">8</div>
+                        <div style="color: #666; font-size: 14px;">Pedidos</div>
+                    </div>
+                    <div style="background: #F0FDF4; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #10B981;">R$ 452,30</div>
+                        <div style="color: #666; font-size: 14px;">Faturamento</div>
+                    </div>
+                    <div style="background: #FEF7CD; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #F59E0B;">32 min</div>
+                        <div style="color: #666; font-size: 14px;">Tempo médio</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sistema do Gestor
+        function fazerLogin() {
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+            
+            if (usuario === 'gestor' && senha === 'georgia123') {
+                // Login bem sucedido
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-screen').style.display = 'block';
+                
+                // Atualizar hora
+                atualizarHora();
+                setInterval(atualizarHora, 60000);
+                
+                // Simular novo pedido a cada 30 segundos (para demonstração)
+                setInterval(simularNovoPedido, 30000);
+                
+                alert('Login realizado com sucesso! Bem-vindo ao sistema gestor.');
+            } else {
+                alert('Usuário ou senha incorretos. Use: gestor / georgia123');
+            }
+        }
+        
+        function atualizarHora() {
+            const agora = new Date();
+            const hora = agora.getHours().toString().padStart(2, '0');
+            const minuto = agora.getMinutes().toString().padStart(2, '0');
+            document.getElementById('hora-atual').textContent = `${hora}:${minuto}`;
+        }
+        
+        function aceitarPedido(numero) {
+            if (confirm(`Aceitar pedido #${numero}?`)) {
+                // Remover dos novos pedidos
+                const pedido = document.querySelector(`.pedido-card:has(h3:contains("#${numero}"))`);
+                if (pedido) {
+                    pedido.remove();
+                }
+                
+                // Adicionar aos em andamento
+                const andamento = document.getElementById('andamento-pedidos');
+                andamento.innerHTML += `
+                    <div class="pedido-card">
+                        <div style="display: flex; justify-content: space-between;">
+                            <h3 style="margin: 0;">Pedido #${numero}</h3>
+                            <span class="status-badge status-producao">EM PRODUÇÃO</span>
+                        </div>
+                        <p style="margin: 10px 0;">
+                            <i class="fas fa-user"></i> Cliente<br>
+                            <i class="fas fa-clock"></i> Agora<br>
+                        </p>
+                        <div>
+                            <button onclick="mudarStatus(${numero}, 'pronto')" 
+                                    style="background: #3B82F6; color: white; border: none; 
+                                           padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                                <i class="fas fa-check-circle"></i> Marcar como Pronto
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                alert(`Pedido #${numero} aceito e em produção!`);
+                
+                // Tocar som de notificação
+                tocarSom('aceito');
+            }
+        }
+        
+        function recusarPedido(numero) {
+            if (confirm(`Recusar pedido #${numero}?`)) {
+                const pedido = document.querySelector(`.pedido-card:has(h3:contains("#${numero}"))`);
+                if (pedido) {
+                    pedido.remove();
+                    alert(`Pedido #${numero} recusado.`);
+                }
+            }
+        }
+        
+        function mudarStatus(numero, status) {
+            const pedido = document.querySelector(`.pedido-card:has(h3:contains("#${numero}"))`);
+            if (pedido) {
+                const badge = pedido.querySelector('.status-badge');
+                
+                if (status === 'pronto') {
+                    badge.className = 'status-badge status-pronto';
+                    badge.textContent = 'PRONTO';
+                    
+                    // Mudar botão
+                    const botao = pedido.querySelector('button');
+                    botao.innerHTML = '<i class="fas fa-motorcycle"></i> Saiu para Entrega';
+                    botao.onclick = () => mudarStatus(numero, 'entrega');
+                    botao.style.background = '#10B981';
+                    
+                    alert(`Pedido #${numero} está pronto para entrega!`);
+                    tocarSom('pronto');
+                    
+                } else if (status === 'entrega') {
+                    badge.className = 'status-badge status-entrega';
+                    badge.textContent = 'EM ENTREGA';
+                    
+                    const botao = pedido.querySelector('button');
+                    botao.innerHTML = '<i class="fas fa-flag-checkered"></i> Finalizar';
+                    botao.onclick = () => finalizarPedido(numero);
+                    botao.style.background = '#8B5CF6';
+                    
+                    alert(`Pedido #${numero} saiu para entrega!`);
+                    
+                }
+            }
+        }
+        
+        function finalizarPedido(numero) {
+            if (confirm(`Finalizar pedido #${numero}?`)) {
+                const pedido = document.querySelector(`.pedido-card:has(h3:contains("#${numero}"))`);
+                if (pedido) {
+                    pedido.remove();
+                    alert(`Pedido #${numero} finalizado com sucesso!`);
+                    tocarSom('finalizado');
+                }
+            }
+        }
+        
+        function enviarMensagem() {
+            const input = document.getElementById('mensagem-chat');
+            const mensagem = input.value.trim();
+            
+            if (mensagem) {
+                const chat = document.getElementById('chat-messages');
+                chat.innerHTML += `
+                    <div style="background: #E0E7FF; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: right;">
+                        <strong>Você:</strong><br>
+                        ${mensagem}
+                    </div>
+                `;
+                input.value = '';
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+        
+        function simularNovoPedido() {
+            const numero = Math.floor(2300 + Math.random() * 100);
+            const clientes = ['Ana Silva', 'Carlos Santos', 'Beatriz Oliveira', 'Ricardo Lima'];
+            const valores = [45.90, 67.50, 89.90, 32.50, 76.80];
+            const pagamentos = ['Pix', 'Dinheiro', 'Cartão', 'Cartão'];
+            
+            const cliente = clientes[Math.floor(Math.random() * clientes.length)];
+            const valor = valores[Math.floor(Math.random() * valores.length)];
+            const pagamento = pagamentos[Math.floor(Math.random() * pagamentos.length)];
+            
+            const novosPedidos = document.getElementById('novos-pedidos');
+            novosPedidos.innerHTML += `
+                <div class="pedido-card pedido-novo">
+                    <div style="display: flex; justify-content: space-between;">
+                        <h3 style="margin: 0;">Pedido #${numero}</h3>
+                        <span class="status-badge status-pendente">NOVO</span>
+                    </div>
+                    <p style="margin: 10px 0;">
+                        <i class="fas fa-user"></i> ${cliente}<br>
+                        <i class="fas fa-phone"></i> (11) 9XXXX-XXXX<br>
+                        <i class="fas fa-money-bill"></i> R$ ${valor.toFixed(2)} (${pagamento})
+                    </p>
+                    <div>
+                        <button class="btn-aceitar" onclick="aceitarPedido(${numero})">
+                            <i class="fas fa-check"></i> Aceitar
+                        </button>
+                        <button class="btn-recusar" onclick="recusarPedido(${numero})">
+                            <i class="fas fa-times"></i> Recusar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Tocar som de novo pedido
+            tocarSom('novo');
+            
+            // Mostrar notificação
+            mostrarNotificacao(`Novo pedido #${numero} recebido!`);
+        }
+        
+        function tocarSom(tipo) {
+            // Sons diferentes para diferentes ações
+            const audio = new Audio();
+            
+            if (tipo === 'novo') {
+                audio.src = 'https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3';
+            } else if (tipo === 'aceito') {
+                audio.src = 'https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3';
+            } else if (tipo === 'pronto') {
+                audio.src = 'https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3';
+            } else if (tipo === 'finalizado') {
+                audio.src = 'https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3';
+            }
+            
+            audio.play().catch(e => console.log('Som não pôde ser reproduzido'));
+        }
+        
+        function mostrarNotificacao(mensagem) {
+            // Criar notificação temporária
+            const notificacao = document.createElement('div');
+            notificacao.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #8B5CF6, #EC4899);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 9999;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            notificacao.innerHTML = `
+                <i class="fas fa-bell"></i> ${mensagem}
+            `;
+            
+            document.body.appendChild(notificacao);
+            
+            setTimeout(() => {
+                notificacao.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notificacao.remove(), 300);
+            }, 5000);
+            
+            // Adicionar animação CSS se não existir
+            if (!document.querySelector('#animacao-notificacao')) {
+                const style = document.createElement('style');
+                style.id = 'animacao-notificacao';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    
+                    @keyframes slideOutRight {
+                        from {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function sair() {
+            if (confirm('Deseja sair do sistema gestor?')) {
+                document.getElementById('dashboard-screen').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'block';
+            }
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarHora();
+            console.log('Sistema Gestor da Georgia Deliverys carregado!');
+        });
+    </script>
+</body>
+</html>
