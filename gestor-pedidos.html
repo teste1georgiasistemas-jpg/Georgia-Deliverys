@@ -567,3 +567,163 @@
     </script>
 </body>
 </html>
+<!-- Adicionar no final do body, antes do </body> -->
+<script>
+// Sistema de auto-atualização simplificado
+setInterval(() => {
+    atualizarPedidosAutomaticamente();
+}, 10000); // Atualiza a cada 10 segundos
+
+async function atualizarPedidosAutomaticamente() {
+    console.log('🔄 Atualizando pedidos automaticamente...');
+    
+    try {
+        const client = window.supabaseConfig?.getClient();
+        if (!client) return;
+        
+        // Buscar pedidos pendentes
+        const { data: pedidosPendentes, error } = await client
+            .from('orders')
+            .select('*')
+            .eq('status', 'pendente')
+            .order('created_at', { ascending: false })
+            .limit(10);
+        
+        if (!error && pedidosPendentes) {
+            atualizarListaPedidos('novos-pedidos', pedidosPendentes, 'pendente');
+        }
+        
+        // Buscar pedidos em andamento
+        const { data: pedidosAndamento, error2 } = await client
+            .from('orders')
+            .select('*')
+            .in('status', ['aceito', 'preparando', 'pronto', 'em_entrega'])
+            .order('updated_at', { ascending: false })
+            .limit(10);
+        
+        if (!error2 && pedidosAndamento) {
+            atualizarListaPedidos('andamento-pedidos', pedidosAndamento, 'andamento');
+        }
+        
+    } catch (err) {
+        console.log('Erro na atualização automática:', err);
+    }
+}
+
+function atualizarListaPedidos(elementId, pedidos, tipo) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+    
+    // Limpar container
+    container.innerHTML = '';
+    
+    pedidos.forEach(pedido => {
+        const numeroPedido = pedido.id.toString().slice(-4);
+        const statusText = getStatusText(pedido.status);
+        const statusClass = getStatusClass(pedido.status);
+        
+        const pedidoHTML = `
+            <div class="pedido-card ${tipo === 'pendente' ? 'pedido-novo' : ''}" 
+                 data-pedido-id="${pedido.id}">
+                <div style="display: flex; justify-content: space-between;">
+                    <h3 style="margin: 0;">Pedido #${numeroPedido}</h3>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <p style="margin: 10px 0;">
+                    <i class="fas fa-user"></i> ${pedido.cliente_nome || 'Cliente'}<br>
+                    <i class="fas fa-phone"></i> ${pedido.cliente_telefone || ''}<br>
+                    <i class="fas fa-money-bill"></i> R$ ${pedido.total?.toFixed(2) || '0,00'}
+                </p>
+                ${tipo === 'pendente' ? `
+                <div>
+                    <button class="btn-aceitar" onclick="aceitarPedidoDB(${pedido.id})">
+                        <i class="fas fa-check"></i> Aceitar
+                    </button>
+                    <button class="btn-recusar" onclick="recusarPedidoDB(${pedido.id})">
+                        <i class="fas fa-times"></i> Recusar
+                    </button>
+                </div>
+                ` : `
+                <div>
+                    ${getBotoesPorStatus(pedido.id, pedido.status)}
+                </div>
+                `}
+            </div>
+        `;
+        
+        container.innerHTML += pedidoHTML;
+    });
+}
+
+function getStatusText(status) {
+    const map = {
+        'pendente': 'PENDENTE',
+        'aceito': 'ACEITO',
+        'preparando': 'EM PRODUÇÃO',
+        'pronto': 'PRONTO',
+        'em_entrega': 'EM ENTREGA',
+        'finalizado': 'FINALIZADO',
+        'cancelado': 'CANCELADO'
+    };
+    return map[status] || status.toUpperCase();
+}
+
+function getStatusClass(status) {
+    const map = {
+        'pendente': 'status-pendente',
+        'aceito': 'status-producao',
+        'preparando': 'status-producao',
+        'pronto': 'status-pronto',
+        'em_entrega': 'status-entrega',
+        'finalizado': 'status-finalizado',
+        'cancelado': 'status-cancelado'
+    };
+    return map[status] || 'status-pendente';
+}
+
+function getBotoesPorStatus(pedidoId, status) {
+    switch(status) {
+        case 'aceito':
+            return `
+                <button onclick="mudarStatusDB(${pedidoId}, 'preparando')" 
+                        style="background: #3B82F6; color: white; border: none; 
+                               padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-play-circle"></i> Iniciar Produção
+                </button>
+            `;
+        case 'preparando':
+            return `
+                <button onclick="mudarStatusDB(${pedidoId}, 'pronto')" 
+                        style="background: #10B981; color: white; border: none; 
+                               padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-check-circle"></i> Marcar como Pronto
+                </button>
+            `;
+        case 'pronto':
+            return `
+                <button onclick="mudarStatusDB(${pedidoId}, 'em_entrega')" 
+                        style="background: #8B5CF6; color: white; border: none; 
+                               padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-motorcycle"></i> Saiu para Entrega
+                </button>
+            `;
+        case 'em_entrega':
+            return `
+                <button onclick="mudarStatusDB(${pedidoId}, 'finalizado')" 
+                        style="background: #6B7280; color: white; border: none; 
+                               padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-flag-checkered"></i> Finalizar Entrega
+                </button>
+            `;
+        default:
+            return '';
+    }
+}
+
+// Iniciar atualização automática quando página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        atualizarPedidosAutomaticamente();
+    }, 2000);
+});
+</script>
