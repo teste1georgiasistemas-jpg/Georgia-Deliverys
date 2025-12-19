@@ -910,5 +910,483 @@
             }
         });
     </script>
+    <!-- Sistema de Auto-Atualização para Gestão Completa -->
+<script>
+// Sistema de atualização automática para dashboard
+let intervalosAtualizacao = {};
+
+// Iniciar todas as atualizações automáticas
+function iniciarAtualizacoesAutomaticas() {
+    console.log('🚀 Iniciando sistema de auto-atualização Gestão Completa');
+    
+    // Atualizar dashboard a cada 30 segundos
+    intervalosAtualizacao.dashboard = setInterval(() => {
+        if (document.getElementById('dashboard').classList.contains('active')) {
+            atualizarDashboard();
+        }
+    }, 30000); // 30 segundos
+    
+    // Atualizar produtos a cada 60 segundos
+    intervalosAtualizacao.produtos = setInterval(() => {
+        if (document.getElementById('produtos').classList.contains('active')) {
+            carregarProdutosDoBanco();
+        }
+    }, 60000); // 60 segundos
+    
+    // Atualizar pedidos a cada 20 segundos
+    intervalosAtualizacao.pedidos = setInterval(() => {
+        if (document.getElementById('pedidos').classList.contains('active')) {
+            carregarPedidosDoBanco();
+        }
+    }, 20000); // 20 segundos
+    
+    // Atualizar financeiro a cada 45 segundos
+    intervalosAtualizacao.financeiro = setInterval(() => {
+        if (document.getElementById('financeiro').classList.contains('active')) {
+            atualizarDadosFinanceiros();
+        }
+    }, 45000); // 45 segundos
+    
+    // Atualizar imediatamente a seção ativa
+    setTimeout(() => {
+        const secoes = ['dashboard', 'produtos', 'pedidos', 'financeiro'];
+        secoes.forEach(secao => {
+            if (document.getElementById(secao)?.classList.contains('active')) {
+                switch(secao) {
+                    case 'dashboard': atualizarDashboard(); break;
+                    case 'produtos': carregarProdutosDoBanco(); break;
+                    case 'pedidos': carregarPedidosDoBanco(); break;
+                    case 'financeiro': atualizarDadosFinanceiros(); break;
+                }
+            }
+        });
+    }, 1000);
+}
+
+// ==================== FUNÇÕES DE ATUALIZAÇÃO ====================
+
+// 1. ATUALIZAR DASHBOARD
+async function atualizarDashboard() {
+    console.log('📊 Atualizando dashboard...');
+    
+    try {
+        const client = window.supabaseConfig?.getClient();
+        if (!client) {
+            console.log('Modo demo - usando dados fictícios');
+            atualizarDashboardDemo();
+            return;
+        }
+        
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        // Buscar dados do dia
+        const { data: pedidosHoje, error: err1 } = await client
+            .from('orders')
+            .select('*')
+            .gte('created_at', hoje);
+        
+        const { data: produtos, error: err2 } = await client
+            .from('products')
+            .select('*');
+        
+        if (err1 || err2) {
+            console.error('Erro ao buscar dados:', err1 || err2);
+            return;
+        }
+        
+        // Calcular estatísticas
+        const faturamentoHoje = pedidosHoje.reduce((total, pedido) => 
+            total + (parseFloat(pedido.total) || 0), 0);
+        
+        const pedidosCount = pedidosHoje.length;
+        
+        // Atualizar cards
+        document.getElementById('today-revenue').textContent = 
+            faturamentoHoje.toFixed(2);
+        document.getElementById('today-orders').textContent = pedidosCount;
+        
+        // Atualizar gráfico (simplificado)
+        atualizarGraficoFaturamento(pedidosHoje);
+        
+        // Atualizar tabela de pedidos recentes
+        atualizarTabelaPedidosRecentes(pedidosHoje.slice(0, 5));
+        
+        mostrarNotificacao('Dashboard atualizado!', 'success');
+        
+    } catch (err) {
+        console.error('Erro ao atualizar dashboard:', err);
+    }
+}
+
+// Dashboard modo demo
+function atualizarDashboardDemo() {
+    // Gerar dados aleatórios para demo
+    const faturamento = 872.50 + (Math.random() * 100);
+    const pedidos = 18 + Math.floor(Math.random() * 3);
+    const clientes = 7 + Math.floor(Math.random() * 2);
+    
+    document.getElementById('today-revenue').textContent = faturamento.toFixed(2);
+    document.getElementById('today-orders').textContent = pedidos;
+    document.getElementById('new-customers').textContent = clientes;
+    
+    console.log('📊 Dashboard demo atualizado');
+}
+
+// 2. CARREGAR PRODUTOS DO BANCO
+async function carregarProdutosDoBanco() {
+    console.log('🛒 Carregando produtos do banco...');
+    
+    try {
+        const client = window.supabaseConfig?.getClient();
+        if (!client) {
+            console.log('Modo demo - produtos fictícios');
+            carregarProdutosDemo();
+            return;
+        }
+        
+        const { data: produtos, error } = await client
+            .from('products')
+            .select('*')
+            .order('nome');
+        
+        if (error) {
+            console.error('Erro ao carregar produtos:', error);
+            return;
+        }
+        
+        // Atualizar tabela de produtos
+        atualizarTabelaProdutos(produtos);
+        
+    } catch (err) {
+        console.error('Erro:', err);
+    }
+}
+
+function carregarProdutosDemo() {
+    const produtosDemo = [
+        { id: 1, nome: 'X-Burger Georgia', categoria: 'Principais', preco: 29.90, ativo: true },
+        { id: 2, nome: 'Combo Família', categoria: 'Combos', preco: 99.90, ativo: true },
+        { id: 3, nome: 'Batata Frita Grande', categoria: 'Acompanhamentos', preco: 19.90, ativo: true }
+    ];
+    
+    atualizarTabelaProdutos(produtosDemo);
+}
+
+// 3. CARREGAR PEDIDOS DO BANCO
+async function carregarPedidosDoBanco() {
+    console.log('📦 Carregando pedidos do banco...');
+    
+    try {
+        const client = window.supabaseConfig?.getClient();
+        if (!client) {
+            console.log('Modo demo - pedidos fictícios');
+            carregarPedidosDemo();
+            return;
+        }
+        
+        const { data: pedidos, error } = await client
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(20);
+        
+        if (error) {
+            console.error('Erro ao carregar pedidos:', error);
+            return;
+        }
+        
+        // Atualizar tabela de pedidos (se a seção estiver visível)
+        if (document.getElementById('pedidos')?.classList.contains('active')) {
+            atualizarTabelaPedidosCompleta(pedidos);
+        }
+        
+    } catch (err) {
+        console.error('Erro:', err);
+    }
+}
+
+function carregarPedidosDemo() {
+    const pedidosDemo = [
+        { 
+            id: 2350, 
+            cliente_nome: 'Carlos Silva', 
+            total: 67.90, 
+            status: 'entregue',
+            created_at: new Date().toISOString(),
+            forma_pagamento: 'pix'
+        },
+        { 
+            id: 2349, 
+            cliente_nome: 'Ana Santos', 
+            total: 89.50, 
+            status: 'em_entrega',
+            created_at: new Date(Date.now() - 3600000).toISOString(),
+            forma_pagamento: 'cartao'
+        }
+    ];
+    
+    if (document.getElementById('pedidos')?.classList.contains('active')) {
+        atualizarTabelaPedidosCompleta(pedidosDemo);
+    }
+}
+
+// 4. ATUALIZAR DADOS FINANCEIROS
+async function atualizarDadosFinanceiros() {
+    console.log('💰 Atualizando dados financeiros...');
+    
+    try {
+        const client = window.supabaseConfig?.getClient();
+        if (!client) {
+            console.log('Modo demo - financeiro fictício');
+            atualizarFinanceiroDemo();
+            return;
+        }
+        
+        // Buscar pedidos dos últimos 7 dias
+        const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        
+        const { data: pedidos, error } = await client
+            .from('orders')
+            .select('*')
+            .gte('created_at', seteDiasAtras);
+        
+        if (error) {
+            console.error('Erro ao buscar dados financeiros:', error);
+            return;
+        }
+        
+        // Calcular totais por dia
+        const faturamentoPorDia = {};
+        pedidos.forEach(pedido => {
+            const dia = new Date(pedido.created_at).toLocaleDateString('pt-BR');
+            faturamentoPorDia[dia] = (faturamentoPorDia[dia] || 0) + parseFloat(pedido.total);
+        });
+        
+        // Atualizar gráfico financeiro
+        atualizarGraficoFinanceiro(faturamentoPorDia);
+        
+    } catch (err) {
+        console.error('Erro:', err);
+    }
+}
+
+function atualizarFinanceiroDemo() {
+    console.log('💰 Financeiro demo atualizado');
+}
+
+// ==================== FUNÇÕES AUXILIARES ====================
+
+// Atualizar tabela de produtos
+function atualizarTabelaProdutos(produtos) {
+    const tabelaBody = document.querySelector('#produtos-section tbody');
+    if (!tabelaBody) return;
+    
+    tabelaBody.innerHTML = '';
+    
+    produtos.forEach(prod => {
+        const row = `
+            <tr>
+                <td style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 8px;"></div>
+                    ${prod.nome}
+                </td>
+                <td>${prod.categoria || 'Sem categoria'}</td>
+                <td>R$ ${parseFloat(prod.preco).toFixed(2)}</td>
+                <td>
+                    <span style="color: ${prod.ativo ? '#10B981' : '#EF4444'}">
+                        ● ${prod.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-admin btn-secondary" style="padding: 5px 10px; font-size: 12px;" 
+                            onclick="editarProduto(${prod.id})">
+                        Editar
+                    </button>
+                    <button class="btn-admin ${prod.ativo ? 'btn-danger' : 'btn-success'}" 
+                            style="padding: 5px 10px; font-size: 12px; margin-left: 5px;"
+                            onclick="alternarStatusProduto(${prod.id}, ${prod.ativo})">
+                        ${prod.ativo ? 'Pausar' : 'Ativar'}
+                    </button>
+                </td>
+            </tr>
+        `;
+        tabelaBody.innerHTML += row;
+    });
+}
+
+// Atualizar tabela de pedidos completa
+function atualizarTabelaPedidosCompleta(pedidos) {
+    const tabelaBody = document.querySelector('#pedidos-section tbody');
+    if (!tabelaBody) return;
+    
+    tabelaBody.innerHTML = '';
+    
+    pedidos.forEach(pedido => {
+        const numero = pedido.id.toString().slice(-4);
+        const data = new Date(pedido.created_at).toLocaleDateString('pt-BR');
+        const hora = new Date(pedido.created_at).toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        const statusCor = {
+            'pendente': '#F59E0B',
+            'aceito': '#3B82F6',
+            'preparando': '#8B5CF6',
+            'pronto': '#10B981',
+            'em_entrega': '#EC4899',
+            'entregue': '#6B7280',
+            'cancelado': '#EF4444'
+        }[pedido.status] || '#6B7280';
+        
+        const row = `
+            <tr>
+                <td>#${numero}</td>
+                <td>${pedido.cliente_nome || 'Cliente'}</td>
+                <td>${data} ${hora}</td>
+                <td>R$ ${parseFloat(pedido.total).toFixed(2)}</td>
+                <td>
+                    <span style="background: ${statusCor}20; color: ${statusCor}; 
+                           padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                        ${pedido.status?.toUpperCase() || 'PENDENTE'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-admin" style="padding: 5px 10px; font-size: 12px;"
+                            onclick="verDetalhesPedido(${pedido.id})">
+                        Detalhes
+                    </button>
+                </td>
+            </tr>
+        `;
+        tabelaBody.innerHTML += row;
+    });
+}
+
+// Atualizar gráfico de faturamento (simplificado)
+function atualizarGraficoFaturamento(pedidos) {
+    // Agrupar por hora do dia
+    const faturamentoPorHora = Array(24).fill(0);
+    
+    pedidos.forEach(pedido => {
+        const hora = new Date(pedido.created_at).getHours();
+        faturamentoPorHora[hora] += parseFloat(pedido.total) || 0;
+    });
+    
+    // Atualizar gráfico visual (simplificado)
+    const grafico = document.querySelector('#revenue-chart');
+    if (grafico) {
+        // Aqui você implementaria Chart.js se quiser
+        console.log('📈 Dados para gráfico:', faturamentoPorHora);
+    }
+}
+
+// Atualizar tabela de pedidos recentes no dashboard
+function atualizarTabelaPedidosRecentes(pedidos) {
+    const tabelaBody = document.querySelector('#dashboard-section tbody');
+    if (!tabelaBody) return;
+    
+    tabelaBody.innerHTML = '';
+    
+    pedidos.forEach(pedido => {
+        const numero = pedido.id.toString().slice(-4);
+        
+        const row = `
+            <tr>
+                <td>#${numero}</td>
+                <td>${pedido.cliente_nome || 'Cliente'}</td>
+                <td>R$ ${parseFloat(pedido.total).toFixed(2)}</td>
+                <td>
+                    <span style="background: #D1FAE5; color: #065F46; 
+                           padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                        ${pedido.status === 'entregue' ? 'Entregue' : 'Em andamento'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-admin" style="padding: 5px 10px; font-size: 12px;"
+                            onclick="verDetalhesPedido(${pedido.id})">
+                        Detalhes
+                    </button>
+                </td>
+            </tr>
+        `;
+        tabelaBody.innerHTML += row;
+    });
+}
+
+// ==================== FUNÇÕES DE INTERFACE ====================
+
+// Funções placeholder (para implementar depois)
+function editarProduto(id) {
+    alert(`Editar produto ${id} - Funcionalidade em desenvolvimento`);
+}
+
+function alternarStatusProduto(id, atual) {
+    if (confirm(`Deseja ${atual ? 'pausar' : 'ativar'} este produto?`)) {
+        // Aqui você faria a chamada ao banco
+        mostrarNotificacao(`Produto ${atual ? 'pausado' : 'ativado'} com sucesso!`, 'success');
+    }
+}
+
+function verDetalhesPedido(id) {
+    alert(`Detalhes do pedido #${id} - Funcionalidade em desenvolvimento`);
+}
+
+// ==================== INICIALIZAÇÃO ====================
+
+// Quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏢 Gestão Completa - Sistema carregado');
+    
+    // Iniciar atualizações automáticas após login
+    setTimeout(() => {
+        // Verificar se está logado (dashboard visível)
+        if (document.getElementById('admin-system')?.style.display !== 'none') {
+            iniciarAtualizacoesAutomaticas();
+            console.log('✅ Sistema de auto-atualização iniciado');
+        }
+    }, 3000);
+});
+
+// Parar todas as atualizações ao sair
+function pararAtualizacoes() {
+    Object.values(intervalosAtualizacao).forEach(intervalo => {
+        clearInterval(intervalo);
+    });
+    console.log('🛑 Sistema de auto-atualização parado');
+}
+
+// Observar mudanças de seção para otimizar
+function observarMudancasSecao() {
+    const secoes = document.querySelectorAll('.section');
+    secoes.forEach(secao => {
+        // Esta função pode ser expandida para otimizar ainda mais
+    });
+}
+
+// Notificação customizada para admin
+function mostrarNotificacao(mensagem, tipo = 'info') {
+    // Usar a mesma função do supabase-config.js ou criar específica
+    if (window.supabaseConfig?.mostrarNotificacao) {
+        window.supabaseConfig.mostrarNotificacao(mensagem, tipo);
+    } else {
+        // Fallback simples
+        const notificacao = document.createElement('div');
+        notificacao.textContent = mensagem;
+        notificacao.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: ${tipo === 'success' ? '#10B981' : '#3B82F6'};
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 10000;
+        `;
+        document.body.appendChild(notificacao);
+        setTimeout(() => notificacao.remove(), 3000);
+    }
+}
+</script>
 </body>
 </html>
